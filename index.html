@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AyushOS</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #58a6ff;
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      background-color: rgba(13, 17, 23, 0.75);
+      color: #f0f6fc;
+      box-sizing: border-box;
+      padding: 8px 16px;
+      border-bottom: 1px solid #30363d;
+      z-index: 1000;
+    }
+
+    .topbar-button {
+      margin: 0;
+      font-weight: bold;
+      background-color: rgba(88, 166, 255, 0.15);
+      padding: 4px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .topbar-button:hover {
+      background-color: rgba(88, 166, 255, 0.3);
+    }
+
+    .topbar-status {
+      margin: 0;
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    .topbar-clock {
+      margin: 0;
+      background-color: rgba(88, 166, 255, 0.15);
+      padding: 4px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(88, 166, 255, 0.3);
+    }
+
+    #desktopApps {
+      padding-top: 64px;
+      padding-left: 24px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .app-icon-container {
+      text-align: center;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      width: 72px;
+      transition: background-color 0.2s;
+    }
+
+    .app-icon-container:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .app-icon-container.selected {
+      background-color: rgba(88, 166, 255, 0.25);
+      border: 1px solid rgba(88, 166, 255, 0.5);
+    }
+
+    .app-icon-img {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      object-fit: cover;
+    }
+
+    .app-icon-title {
+      margin: 6px 0 0 0;
+      color: #f0f6fc;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .window {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      width: 90%;
+      max-width: 650px;
+      background-color: rgba(22, 27, 34, 0.95);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+    }
+
+    .windowheader {
+      width: 100%;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #161b22;
+      border-bottom: 1px solid #30363d;
+      cursor: grab;
+      user-select: none;
+      box-sizing: border-box;
+      padding: 0 12px;
+    }
+
+    .windowheader:active {
+      cursor: grabbing;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+    }
+
+    .closebutton {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      background-color: #ec6b5e;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .closebutton:hover {
+      background-color: #f24535;
+    }
+
+    .headertext {
+      margin: 0;
+      color: #8b949e;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .windowbody {
+      padding: 24px;
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #58a6ff;
+      object-fit: cover;
+    }
+
+    .profile-title {
+      color: #f0f6fc;
+      margin-top: 16px;
+      margin-bottom: 4px;
+    }
+
+    .profile-subtitle {
+      color: #8b949e;
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .body-text {
+      color: #c9d1d9;
+      line-height: 1.6;
+    }
+
+    .status-text {
+      color: #8b949e;
+      font-size: 14px;
+    }
+
+    .online-indicator {
+      color: #7ee787;
+    }
+
+    .github-btn {
+      display: inline-block;
+      background-color: #238636;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .notes-layout {
+      display: flex;
+      height: 400px;
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+
+    .notes-sidebar {
+      width: 180px;
+      background-color: #161b22;
+      border-right: 1px solid #30363d;
+      overflow-y: auto;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .sidebar-item {
+      padding: 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #0d1117;
+      border: 1px solid #30363d;
+    }
+
+    .sidebar-item:hover {
+      border-color: #58a6ff;
+    }
+
+    .sidebar-item-title {
+      margin: 0;
+      font-weight: bold;
+      font-size: 13px;
+      color: #f0f6fc;
+    }
+
+    .sidebar-item-date {
+      margin: 4px 0 0 0;
+      font-size: 11px;
+      color: #8b949e;
+    }
+
+    .notes-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 20px;
+      background-color: #0d1117;
+      height: 380px;
+      overflow-y: auto;
+    }
+
+    .project-card {
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .project-card:hover {
+      border-color: #58a6ff;
+    }
+
+    .project-title {
+      margin: 0 0 8px 0;
+      color: #f0f6fc;
+      font-size: 15px;
+    }
+
+    .project-desc {
+      margin: 0 0 12px 0;
+      color: #8b949e;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .project-tech {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tech-tag {
+      background-color: rgba(88, 166, 255, 0.15);
+      color: #58a6ff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(88, 166, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar" id="top">
+    <p id="welcomeopen" class="topbar-button">AyushOS</p>
+    <p class="topbar-status">⚡ System Online</p>
+    <p id="timeElement" class="topbar-clock">Loading Time...</p>
+  </div>
+
+  <div id="desktopApps">
+    <div class="app-icon-container" id="notesIcon">
+      <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=300" class="app-icon-img" alt="Dev Logs" />
+      <p class="app-icon-title">Dev Logs</p>
+    </div>
+    <div class="app-icon-container" id="projectsIcon">
+      <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=300" class="app-icon-img" alt="Projects" />
+      <p class="app-icon-title">Projects</p>
+    </div>
+  </div>
+
+  <div class="window" id="welcome" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    <div class="windowheader" id="welcomeheader">
+      <div class="header-controls">
+        <div class="closebutton" id="welcomeclose"></div>
+      </div>
+      <p class="headertext">Welcome Screen</p>
+      <div style="width: 16px;"></div>
+    </div>
+    <div class="windowbody">
+      <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500" class="profile-img" alt="Profile" />
+      <h1 class="profile-title">Ayush Kataria</h1>
+      <h2 class="profile-subtitle">Welcome to AyushOS</h2>
+      <p class="body-text">
+        Hey there! Welcome to my web-based terminal interface. I built this welcome page as the first layer of my very own personal operating system.
+      </p>
+      <p class="body-text">
+        I love working with <strong>software development</strong> and exploring <em>automation tools</em>.
+      </p>
+      <p class="status-text">
+        <dfn>System Status</dfn>: <span class="online-indicator">Online</span> <br>
+        <abbr title="Operating System">OS</abbr> Version: <strong>5.0.0</strong>
+      </p>
+      <a href="https://github.com/godgamer123456" target="_blank" class="github-btn">Github Profile</a>
+    </div>
+  </div>
+
+  <div class="window" id="notes" style="top: 55%; left: 52%; transform: translate(-50%, -50%); display: none;">
+    <div class="windowheader" id="notesheader">
+      <div class="header-controls">
+        <div class="closebutton" id="notesclose"></div>
+      </div>
+      <p class="headertext" id="notesHeaderTitle">Dev Logs</p>
+      <div style="width: 16px;"></div>
+    </div>
+    <div class="notes-layout">
+      <div class="notes-sidebar" id="sidebar"></div>
+      <div class="notes-content" id="noteDisplay"></div>
+    </div>
+  </div>
+
+  <div class="window" id="projects" style="top: 48%; left: 46%; transform: translate(-50%, -50%); display: none;">
+    <div class="windowheader" id="projectsheader">
+      <div class="header-controls">
+        <div class="closebutton" id="projectsclose"></div>
+      </div>
+      <p class="headertext">Projects Hub</p>
+      <div style="width: 16px;"></div>
+    </div>
+    <div class="projects-grid" id="projectsGrid"></div>
+  </div>
+
+  <script>
+    var biggestIndex = 10;
+    var selectedIcon = undefined;
+    var topBar = document.querySelector("#top");
+
+    function updateTime() {
+      var currentTime = new Date().toLocaleString();
+      var timeText = document.querySelector("#timeElement");
+      if (timeText) {
+        timeText.innerHTML = currentTime;
+      }
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    function selectIcon(element) {
+      element.classList.add("selected");
+      selectedIcon = element;
+    }
+
+    function deselectIcon(element) {
+      if (element) {
+        element.classList.remove("selected");
+        selectedIcon = undefined;
+      }
+    }
+
+    function handleIconTap(element) {
+      if (element.classList.contains("selected")) {
+        deselectIcon(element);
+      } else {
+        if (selectedIcon) deselectIcon(selectedIcon);
+        selectIcon(element);
+      }
+    }
+
+    function setupAppIcon(iconId, windowId) {
+      var icon = document.querySelector("#" + iconId);
+      var win = document.querySelector("#" + windowId);
+      if (icon && win) {
+        icon.addEventListener("click", function(e) {
+          e.stopPropagation();
+          handleIconTap(icon);
+        });
+        icon.addEventListener("dblclick", function() {
+          openWindow(win);
+        });
+      }
+    }
+
+    setupAppIcon("notesIcon", "notes");
+    setupAppIcon("projectsIcon", "projects");
+
+    document.addEventListener("click", function() {
+      deselectIcon(selectedIcon);
+    });
+
+    function closeWindow(element) {
+      element.style.display = "none";
+    }
+
+    function openWindow(element) {
+      element.style.display = "flex";
+      biggestIndex++;
+      element.style.zIndex = biggestIndex;
+      topBar.style.zIndex = biggestIndex + 1;
+    }
+
+    function handleWindowTap(element) {
+      biggestIndex++;
+      element.style.zIndex = biggestIndex;
+      topBar.style.zIndex = biggestIndex + 1;
+      deselectIcon(selectedIcon);
+    }
+
+    function addWindowTapHandling(element) {
+      element.addEventListener("mousedown", function() {
+        handleWindowTap(element);
+      });
+    }
+
+    function dragElement(element) {
+      if (!element) return;
+      var initialX = 0, initialY = 0, currentX = 0, currentY = 0;
+      var header = document.getElementById(element.id + "header");
+
+      if (header) {
+        header.onmousedown = startDragging;
+      } else {
+        element.onmousedown = startDragging;
+      }
+
+      function startDragging(e) {
+        e = e || window.event;
+        e.preventDefault();
+
+        if (element.style.transform) {
+          var rect = element.getBoundingClientRect();
+          element.style.transform = "none";
+          element.style.top = rect.top + "px";
+          element.style.left = rect.left + "px";
+        }
+
+        initialX = e.clientX;
+        initialY = e.clientY;
+
+        document.onmouseup = stopDragging;
+        document.onmousemove = drag;
+      }
+
+      function drag(e) {
+        e = e || window.event;
+        e.preventDefault();
+
+        currentX = initialX - e.clientX;
+        currentY = initialY - e.clientY;
+
+        initialX = e.clientX;
+        initialY = e.clientY;
+
+        element.style.top = (element.offsetTop - currentY) + "px";
+        element.style.left = (element.offsetLeft - currentX) + "px";
+      }
+
+      function stopDragging() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    function initializeWindow(id) {
+      var win = document.querySelector("#" + id);
+      var closeBtn = document.querySelector("#" + id + "close");
+      
+      if (win) {
+        dragElement(win);
+        addWindowTapHandling(win);
+      }
+      if (closeBtn && win) {
+        closeBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          closeWindow(win);
+        });
+      }
+    }
+
+    initializeWindow("welcome");
+    initializeWindow("notes");
+    initializeWindow("projects");
+
+    var welcomeScreenOpen = document.querySelector("#welcomeopen");
+    if (welcomeScreenOpen) {
+      welcomeScreenOpen.addEventListener("click", function() {
+        openWindow(document.querySelector("#welcome"));
+      });
+    }
+
+    var logsData = [
+      {
+        title: "Automation Workflows",
+        date: "08/12/2026",
+        content: `
+        <h3 style="color:#58a6ff; margin-top:0;">Local Orchestration & Workflows</h3>
+        <p>Exploring automated triggers and pipeline routing for system maintenance and background task processing.</p>
+        <ul>
+            <li>Node orchestration logic</li>
+            <li>Local payload evaluation</li>
+            <li>Custom terminal hooks</li>
+        </ul>
+        `
+      },
+      {
+        title: "System Architecture",
+        date: "08/24/2026",
+        content: `
+        <h3 style="color:#58a6ff; margin-top:0;">WebOS Architecture</h3>
+        <p>Structuring full window-management layers inside clean ECMAScript without heavy external dependencies.</p>
+        <p>Next steps: Persisting window position states to LocalStorage and introducing z-index stacking handles.</p>
+        `
+      }
+    ];
+
+    function setNotesContent(index) {
+      var display = document.querySelector("#noteDisplay");
+      var titleHeader = document.querySelector("#notesHeaderTitle");
+      if (display && logsData[index]) {
+        display.innerHTML = logsData[index].content;
+        if (titleHeader) {
+          titleHeader.innerText = "Dev Logs - " + logsData[index].title;
+        }
+      }
+    }
+
+    function populateSidebar() {
+      var sidebar = document.querySelector("#sidebar");
+      if (!sidebar) return;
+      sidebar.innerHTML = "";
+
+      for (let i = 0; i < logsData.length; i++) {
+        let item = document.createElement("div");
+        item.className = "sidebar-item";
+        item.innerHTML = `
+          <p class="sidebar-item-title">${logsData[i].title}</p>
+          <p class="sidebar-item-date">${logsData[i].date}</p>
+        `;
+        item.addEventListener("click", function() {
+          setNotesContent(i);
+        });
+        sidebar.appendChild(item);
+      }
+    }
+
+    populateSidebar();
+    setNotesContent(0);
+
+    var projectsData = [
+      {
+        title: "Tournament Predictor",
+        description: "Interactive knockout bracket calculator and score simulator for the 2026 World Cup.",
+        tech: ["HTML5 Canvas", "JavaScript", "CSS3"]
+      },
+      {
+        title: "OpenSAT Test Runner",
+        description: "Dynamic quiz runner fetching live SAT practice queries with randomized question sets.",
+        tech: ["REST API", "JavaScript", "Async/Await"]
+      },
+      {
+        title: "Workflow Automation",
+        description: "Custom n8n webhooks integrated with local Ollama LLM deployments for data processing.",
+        tech: ["n8n", "Python", "Local Models"]
+      },
+      {
+        title: "Data Visualization Engine",
+        description: "Statistical analysis toolkit generating custom scatter and box plots over tabular datasets.",
+        tech: ["Python", "Pandas", "Matplotlib"]
+      }
+    ];
+
+    function populateProjects() {
+      var grid = document.querySelector("#projectsGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      for (let i = 0; i < projectsData.length; i++) {
+        let card = document.createElement("div");
+        card.className = "project-card";
+
+        let techTags = projectsData[i].tech.map(t => `<span class="tech-tag">${t}</span>`).join("");
+
+        card.innerHTML = `
+          <div>
+            <h4 class="project-title">${projectsData[i].title}</h4>
+            <p class="project-desc">${projectsData[i].description}</p>
+          </div>
+          <div class="project-tech">${techTags}</div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    populateProjects();
+  </script>
+
+</body>
+</html>
